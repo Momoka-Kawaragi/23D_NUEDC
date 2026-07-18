@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"C:\\\\Program Files\\\\JetBrains\\\\CLion 2026.1.1\\\\bin\\\\cmake\\\\win\\\\x64\\\\bin\\\\cmake.exe\" --build --target Model_F4 --preset Debug)",
+      "WebSearch",
+      "WebFetch(domain:www.analog.com)",
+      "Bash(pcb scan *)",
+      "WebFetch(domain:github.com)",
+      "Bash(cmake --build --target Model_F4 --preset Debug)",
+      "Bash(cmake --build --target Model_F4 --preset Debug -- --force-run)",
+      "Bash(cmake --build build/Debug -j4)",
+      "PowerShell(& \"C:\\\\Program Files\\\\JetBrains\\\\CLion 2026.1.1\\\\bin\\\\cmake\\\\win\\\\x64\\\\bin\\\\cmake.exe\" --build \"C:\\\\Users\\\\32361\\\\Desktop\\\\stm32\\\\STM32CMake\\\\Model_F4\\\\build\\\\Debug\" --target Model_F4 2>&1)",
+      "PowerShell(& \"C:\\\\Program Files\\\\JetBrains\\\\CLion 2026.1.1\\\\bin\\\\cmake\\\\win\\\\x64\\\\bin\\\\cmake.exe\" --build \"C:\\\\Users\\\\32361\\\\Desktop\\\\stm32\\\\STM32CMake\\\\Model_F4\\\\build\\\\Debug\" --target Model_F4 --clean-first 2>&1)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\32361\\\\Desktop\\\\stm32\\\\STM32CMake\\\\Model_F4\" -Depth 0)",
+      "Bash(Select-Object Name, Mode, Length)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\32361\\\\Desktop\\\\stm32\\\\STM32CMake\\\\Model_F4\\\\MY_DRIVE\" -Recurse | Select-Object FullName, Mode, Length | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Users\\\\32361\\\\Desktop\\\\stm32\\\\STM32CMake\\\\Model_F4\\\\MY_DRIVE\\\\\", \"\"\\) + \"  \\(\" + $_.Mode + \"\\)  \" + $_.Length + \" bytes\" })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\32361\\\\Desktop\\\\stm32\\\\STM32CMake\\\\Model_F4\\\\Core\" -Recurse | Select-Object FullName, Mode, Length | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Users\\\\32361\\\\Desktop\\\\stm32\\\\STM32CMake\\\\Model_F4\\\\Core\\\\\", \"\"\\) + \"  \\(\" + $_.Mode + \"\\)  \" + $_.Length + \" bytes\" })",
+      "Bash(Get-Content \"C:\\\\Users\\\\32361\\\\Desktop\\\\stm32\\\\STM32CMake\\\\Model_F4\\\\CMakeLists.txt\" -Raw)",
+      "Bash(Format-Hex -Count 512)",
+      "Bash(cmake *)",
+      "Bash(where openocd *)",
+      "Bash(where ST-LINK_CLI.exe)",
+      "Bash(where STM32_Programmer_CLI.exe)",
+      "Bash(openocd *)",
+      "Bash(Get-ChildItem *)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(git remote *)",
+      "Bash(git add *)"
+    ]
+  }
+}
