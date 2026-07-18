@@ -729,7 +729,6 @@ void MR_SendResult(const MR_Result_t *r)
             mr_type_names[r->type],
             (int)(r->baud / 1000.0f + 0.5f), FMT2(r->h * 10.0f),
             (int)(fsk_df / 1000.0f + 0.5f));
-        HMI_SetValue("x3", (int)(r->h * 1000.0f + 0.5f));
         break;
     }
     default:

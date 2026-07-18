@@ -1,0 +1,17 @@
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:67:13:mag_normalize	32	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:79:17:find_peak	24	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:89:12:peak_count	40	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:108:12:peak_detect	24	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:120:12:find_000	32	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:136:14:calc_am_ma	72	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:171:14:calc_2ask_baud	56	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:200:14:calc_2psk_baud	56	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:228:12:fsk_find_sideband	48	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:257:14:calc_2fsk_params	64	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:299:14:goertzel_mag	56	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:317:14:fit_bessel_err	64	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:339:13:calc_fm_goertzel	96	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:388:21:recognize_once	232	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:561:6:MR_Init	8	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:568:13:MR_Process	144	static,ignoring_inline_asm
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_MaCalculate/ModRecognizer.c:686:6:MR_SendResult	176	static

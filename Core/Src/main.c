@@ -130,55 +130,60 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
     HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
 
-    /* PB12 按键: 上升沿翻转 PB2 LED */
+    /* 持续识别 + UART1 发送 + 20帧窗口 */
     {
-        static uint8_t last_key = 0;
-        uint8_t key = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12);
-        if (key && !last_key)
-            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_2);
-        last_key = key;
-    }
-
-    MR_Result_t r = MR_Process();
-    if (r.type != MR_TYPE_NONE) {
-        MR_SendResult(&r);
-
-        static const char *names[] = {"CW","AM","2ASK","2PSK","FM","2FSK"};
-        static MR_ModType_t last_display = (MR_ModType_t)0xFF;
         static MR_ModType_t type_hist[20] = {0};
         static uint8_t hist_idx = 0;
+        static MR_Result_t last_r[6];  /* 各类型最近一帧参数 */
 
-        /* 20帧历史记录 */
-        type_hist[hist_idx] = r.type;
-        hist_idx = (hist_idx + 1) % 20;
+        MR_Result_t r = MR_Process();
+        if (r.type != MR_TYPE_NONE) {
+            MR_SendResult(&r);
+            type_hist[hist_idx] = r.type;
+            hist_idx = (hist_idx + 1) % 20;
+            if (r.type <= MR_TYPE_2FSK) last_r[r.type] = r;  /* 保存参数 */
 
-        /* 每帧统计20帧窗口内各类型次数 */
-        uint8_t cnt[6] = {0};
-        for (int i = 0; i < 20; i++)
-            if (type_hist[i] <= MR_TYPE_2FSK) cnt[type_hist[i]]++;
+            /* PB12 按键: 按下瞬间投票并更新 HMI */
+            static uint8_t last_key = 0;
+            uint8_t key = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12);
+            if (key && !last_key) {
+                HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_2);
 
-        /* 找最多的类型 */
-        MR_ModType_t display_type = MR_TYPE_FM;
-        uint8_t max_cnt = 0;
-        for (int t = 0; t < 6; t++)
-            if (cnt[t] > max_cnt) { max_cnt = cnt[t]; display_type = (MR_ModType_t)t; }
+                /* 20帧窗口投票 */
+                uint8_t cnt[6] = {0};
+                for (int i = 0; i < 20; i++)
+                    if (type_hist[i] <= MR_TYPE_2FSK) cnt[type_hist[i]]++;
 
-        /* FM/2FSK 同时存在 → FM需>70%才判FM, 否则2FSK */
-        if (cnt[MR_TYPE_FM] > 0 && cnt[MR_TYPE_2FSK] > 0)
-            display_type = (cnt[MR_TYPE_FM] > 14) ? MR_TYPE_FM : MR_TYPE_2FSK;
-        /* 仅 2PSK+FM 存在 (无2FSK) → 选 2PSK */
-        if (cnt[MR_TYPE_2PSK] > 0 && cnt[MR_TYPE_FM] > 0 && cnt[MR_TYPE_2FSK] == 0)
-            display_type = MR_TYPE_2PSK;
+                MR_ModType_t result_type = MR_TYPE_FM;
+                uint8_t max_cnt = 0;
+                for (int t = 0; t < 6; t++)
+                    if (cnt[t] > max_cnt) { max_cnt = cnt[t]; result_type = (MR_ModType_t)t; }
 
-        /* 类型变化时才更新 HMI */
-        if (display_type != last_display) {
-            last_display = display_type;
-            HMI_SetText("t1", names[display_type]);
-            Relay_SetByType(display_type);
+                /* FM/2FSK 同时存在 → FM需>80% */
+                if (cnt[MR_TYPE_FM] > 0 && cnt[MR_TYPE_2FSK] > 0)
+                    result_type = (cnt[MR_TYPE_FM] > 16) ? MR_TYPE_FM : MR_TYPE_2FSK;
+                /* 仅 2PSK+FM → 选 2PSK */
+                if (cnt[MR_TYPE_2PSK] > 0 && cnt[MR_TYPE_FM] > 0 && cnt[MR_TYPE_2FSK] == 0)
+                    result_type = MR_TYPE_2PSK;
+                /* 仅 2ASK+2FSK → 选 2FSK */
+                if (cnt[MR_TYPE_2ASK] > 0 && cnt[MR_TYPE_2FSK] > 0
+                    && cnt[MR_TYPE_CW] == 0 && cnt[MR_TYPE_AM] == 0
+                    && cnt[MR_TYPE_2PSK] == 0 && cnt[MR_TYPE_FM] == 0)
+                    result_type = MR_TYPE_2FSK;
 
-            switch (display_type) {
+                static const char *names[] = {"CW","AM","2ASK","2PSK","FM","2FSK"};
+
+                HMI_SetText("t1", names[result_type]);
+                Relay_SetByType(result_type);
+
+                MR_Result_t *p = &last_r[result_type];
+
+                switch (result_type) {
             case MR_TYPE_CW:
                 HAL_GPIO_WritePin(GPIOE, Relay_2_Pin|Relay_3_CT1_Pin|Relay_3_CT2_Pin|Relay_4_Pin, GPIO_PIN_RESET);
                 HAL_GPIO_WritePin(GPIOE, Relay_1_Pin, GPIO_PIN_SET);
@@ -188,56 +193,52 @@ int main(void)
                 HMI_SetFloat("x3", 0.0f, 1);
                 HMI_SetFloat("x5", 0.0f, 1);
                 break;
-            case MR_TYPE_AM:
-                {
-                float ma_cal = r.ma;
-if (r.ma < 85.0f) ma_cal += 10.0f;
-if (r.ma < 60.0f) ma_cal += 5.0f;
+            case MR_TYPE_AM: {
+                float ma_cal = p->ma;
+                if (p->ma < 85.0f) ma_cal += 10.0f;
+                if (p->ma < 60.0f) ma_cal += 5.0f;
                 HMI_SetFloat("x0", ma_cal, 1);
-                }
                 HMI_SetFloat("x1", 0.0f, 1);
                 HMI_SetFloat("x2", 0.0f, 1);
                 HMI_SetFloat("x3", 0.0f, 1);
-                HMI_SetFloat("x5", roundf(r.fm / 1000.0f) * 10.0f, 2);
+                HMI_SetFloat("x5", roundf(p->fm / 1000.0f) * 10.0f, 2);
                 break;
+            }
             case MR_TYPE_FM:
-                HMI_SetFloat("x0", r.mf * 100.0f, 1);
-                HMI_SetFloat("x1", r.df / 100.0f, 2);
+                HMI_SetFloat("x0", p->mf * 100.0f, 1);
+                HMI_SetFloat("x1", p->df / 100.0f, 2);
                 HMI_SetFloat("x2", 0.0f, 1);
                 HMI_SetFloat("x3", 0.0f, 1);
-                HMI_SetFloat("x5", roundf(r.fm / 1000.0f) * 10.0f, 2);
+                HMI_SetFloat("x5", roundf(p->fm / 1000.0f) * 10.0f, 2);
                 break;
             case MR_TYPE_2ASK:
                 HMI_SetFloat("x0", 0.0f, 1);
                 HMI_SetFloat("x1", 0.0f, 1);
-                HMI_SetFloat("x2", roundf(r.baud / 1000.0f) * 20.0f, 2);
+                HMI_SetFloat("x2", roundf(p->baud / 1000.0f) * 20.0f, 2);
                 HMI_SetFloat("x3", 0.0f, 1);
                 HMI_SetFloat("x5", 0.0f, 1);
                 break;
             case MR_TYPE_2PSK:
                 HMI_SetFloat("x0", 0.0f, 1);
                 HMI_SetFloat("x1", 0.0f, 1);
-                HMI_SetFloat("x2", roundf(r.baud / 1000.0f) * 20.0f, 2);
+                HMI_SetFloat("x2", roundf(p->baud / 1000.0f) * 20.0f, 2);
                 HMI_SetFloat("x3", 0.0f, 1);
                 HMI_SetFloat("x5", 0.0f, 1);
                 break;
-            case MR_TYPE_2FSK: {
+            case MR_TYPE_2FSK:
                 HMI_SetFloat("x0", 0.0f, 1);
                 HMI_SetFloat("x1", 0.0f, 1);
-                HMI_SetFloat("x2", roundf(r.baud / 1000.0f) * 20.0f, 2);
-                HMI_SetFloat("x3", r.h, 2);
+                HMI_SetFloat("x2", roundf(p->baud / 1000.0f) * 20.0f, 2);
+                HMI_SetFloat("x3", p->h * 5.0f, 2);
                 HMI_SetFloat("x5", 0.0f, 1);
                 break;
-            }
             default:
                 break;
             }
         }
+        last_key = key;
     }
-
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
+  }
   }
   /* USER CODE END 3 */
 }

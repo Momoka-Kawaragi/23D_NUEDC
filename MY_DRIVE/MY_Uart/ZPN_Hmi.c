@@ -92,7 +92,7 @@ int HMI_SetText(const char* objname, const char* text)
  * HMI_SetValue("page1.n0", HAL_ADC_GetValue(&hadc1) * 3.3f / 4096);
  * @endcode
  */
-int (const char* objname, int value)
+int HMI_SetValue(const char* objname, int value)
 {
     if(objname == NULL) return -1;
     return UART2_SendPrintf("%s.val=%d", objname, value);

@@ -1,0 +1,4 @@
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_FFT/DFT.c:34:6:DFT_Process	240	static,ignoring_inline_asm
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_FFT/DFT.c:148:16:find_top_peaks	40	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_FFT/DFT.c:175:17:DFT_DetectModulation	216	static
+C:/Users/32361/Desktop/stm32/STM32CMake/Model_F4/MY_DRIVE/MY_FFT/DFT.c:258:6:DFT_SendSpectrumFrame	560	static
